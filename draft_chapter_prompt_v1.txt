@@ -1,0 +1,77 @@
+# draft_chapter_prompt_v1.txt
+# Step 5 prompt for the new pipeline (simpleapp_v37).
+# Called X times per batch (default X=3). Each call produces one draft of
+# the chapter from the same outline + same AUTHOR_CONSTRUCTION block.
+# Variation comes from sampling.
+#
+# This prompt contains the 5 architectural design rules (option b from
+# step 4 of the architecture record): repurposed positive forms of
+# Caps 6, 7, 12, 15, 20. The 15 pattern-prohibition caps are NOT in
+# this prompt; they are enforced at step 6 by the rule_verifier module.
+#
+# Input variables (filled by simpleapp_v37):
+#   {outline}              — the chapter outline as provided by the operator
+#   {author_construction}  — the AUTHOR_CONSTRUCTION block from step 2-3
+
+You are writing one complete draft of a chapter of commercial fiction. You will be given a chapter outline and an AUTHOR_CONSTRUCTION block. Your job is to produce the chapter as finished prose, applying the construction habits from the AUTHOR_CONSTRUCTION block to every sentence and the five architectural design rules below to the chapter's structure.
+
+PRE-DRAFT COMMIT STEP (perform silently; do not output)
+
+Before you write the first sentence, do the following internally:
+
+1. READ THE AUTHOR_CONSTRUCTION BLOCK IN FULL. Every habit listed across the 13 dimensions is binding on you. These habits replace your default sentence-construction tendencies. You are not writing as yourself; you are writing as a drafter constrained to follow the PRIMARY author's construction shape across every dimension, with secondary-author habits drawn on for the scenes the AUTHOR_CONSTRUCTION block names.
+
+2. SUPPRESS YOUR OWN TEMPLATES. Your default training distribution includes prose patterns and constructional templates that did not come from the PRIMARY author. Those defaults do not apply here. If a sentence feels natural to you but does not match the PRIMARY author's habits across the 13 dimensions, that sentence is wrong and you rewrite it before committing. Your own ideas about how to construct prose are not the standard. The PRIMARY author's habits are the standard. This is the binding instruction of this prompt.
+
+3. READ THE OUTLINE. Note the beats, dialogue, POV, tense, setting, and ending. The outline gives content. The AUTHOR_CONSTRUCTION block gives construction. Both bind.
+
+4. NOTE THE FIVE ARCHITECTURAL DESIGN RULES (below). These are not pattern-avoidance rules; they are positive structural decisions you make about the chapter's shape before you draft. They are binding with the same force as the AUTHOR_CONSTRUCTION habits.
+
+THE FIVE ARCHITECTURAL DESIGN RULES
+
+These are structural choices about the chapter's shape. Make them before writing.
+
+DESIGN RULE 1 — Forward-motion chapter close.
+The chapter ends on a character's action, decision, pressure, or next movement. Not on a static object, not on silence, not on darkness, not on weather, not on an unopened letter, a closed trunk, a sealed packet, or an abstraction as the subject of the final sentence. The reader leaves the chapter pulled forward into the next one.
+
+DESIGN RULE 2 — Scene-beat grounding.
+Every scene in the chapter includes at least one concrete physical detail specific to that scene (an object, a sound, a body pressure, a weather condition, a smell, a texture) and at least one callback to the POV character's formed self (a habit, a piece of training, a wound, a role, a prior event, an established relationship). Generic staging is not enough. Name the specific.
+
+DESIGN RULE 3 — Paragraph anchor.
+Any paragraph of three or more sentences inside a scene must include at least one clause where a named character is the subject doing a concrete action or making a clear decision. Do not let paragraphs drift into pure observation, reflection, or retrospective explanation. Do not use hand-action anchors ("he reached for the cup", "her fingers tightened on the rail") for more than two consecutive paragraphs.
+
+DESIGN RULE 4 — Sentence rhythm variation.
+Sentence rhythm varies across every paragraph. Short narrative-prose sentences of five words or fewer appear at most once per ~500 words. Never three or more such short sentences in a row in narration. Never let a cluster of short sentences dominate a paragraph. Dialogue is exempt from this rule.
+
+DESIGN RULE 5 — Texture alternation across scenes.
+The chapter's scenes have texture: EXTERIOR (action, dialogue, body in the scene), INTERIOR (thought, sensory perception, memory, atmospheric description), or CONNECTIVE (transition, brief summary, compressed time passage). No more than two consecutive scenes share primary texture. Within an EXTERIOR scene, the bulk of the scene's content is action and dialogue at the center, not surrounding interior thought. The chapter's closing arc of scenes includes at least one with substantive EXTERIOR content; do not close the chapter with all interior contemplation.
+
+DRAFTING
+
+Write the chapter as continuous finished prose.
+
+Follow the outline's beats in order. Render each beat to the depth its content requires. Do not skip beats. Do not invent plot beats not in the outline. Required dialogue lines flagged in the outline as load-bearing must appear verbatim; dialogue specified by function should be rendered as natural exchange that performs the function.
+
+Within each sentence, apply the AUTHOR_CONSTRUCTION habits. Within each scene, apply the five architectural design rules.
+
+The chapter's closing sentence obeys Design Rule 1. Read your final sentence and check it: is the subject a character, an action, a decision, a pressure, a movement? If not, rewrite.
+
+PROHIBITIONS
+
+Do not name the PRIMARY or SECONDARY authors in the chapter prose. Do not include the AUTHOR_CONSTRUCTION block, the design rules, or the outline in your output. Do not output a preface, an introduction, a summary, a coda, or any meta-commentary about your process. Do not output chapter labels, scene labels, beat numbers, or structural markers.
+
+Do not reproduce any language from the PRIMARY or SECONDARY authors' published work. Their habits are structural shapes; the prose is yours, written under their shapes.
+
+OUTPUT
+
+Return only the chapter prose. Plain text. Normal paragraph breaks. No commentary before, during, or after.
+
+=== OUTLINE ===
+
+{outline}
+
+=== AUTHOR_CONSTRUCTION ===
+
+{author_construction}
+
+Write the chapter now.

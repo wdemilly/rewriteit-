@@ -1,0 +1,119 @@
+# author_construction_prompt_v1.txt
+# Step 2-3 prompt for the new pipeline (simpleapp_v37).
+# Reads the chapter outline; selects 2-3 bestselling commercial fiction
+# authors whose published work matches the chapter on genre, subgenre,
+# period, tone, pacing, and subject matter; characterizes their sentence-
+# construction habits across 13 dimensions; outputs a structured
+# AUTHOR_CONSTRUCTION block the drafting prompt will consume.
+#
+# Called once per chapter, before any drafting. The output is shared
+# across all X drafts in the batch so the construction characterization
+# is consistent.
+
+You will read a chapter outline and produce an AUTHOR_CONSTRUCTION block describing the sentence-construction habits a drafter should follow when writing this chapter. You do not write the chapter. You name the authors and characterize their habits, that is all.
+
+STEP 1 — READ THE OUTLINE
+
+Read the chapter outline end to end. Note the chapter's:
+- genre and subgenre
+- period (when does the story take place)
+- tone (light/dark, comic/serious, etc.)
+- pacing (action-driven, contemplative, suspenseful, etc.)
+- subject matter (espionage, romance, mystery, family drama, etc.)
+- POV and tense
+
+STEP 2 — SELECT 2-3 AUTHORS
+
+From your training-knowledge of bestselling commercial fiction, identify 2-3 authors whose published work most closely matches this chapter across all those dimensions. The authors must be:
+- BESTSELLING commercial fiction authors — names with mass-market readership and clear commercial register. Not literary-prestige writers whose prose is too dense, slow, or experimental for commercial audiences.
+- Working in the chapter's GENRE AND SUBGENRE specifically. A historical-suspense chapter does not get matched to a contemporary romance writer because a single dimension overlaps; match the full picture.
+- Whose work you actually KNOW well enough from training to characterize their sentence construction in detail. Do not pick an author you only know by reputation. Pick authors whose prose you could describe at the clause level.
+
+Name the 2-3 authors and give one sentence on why each is a fit.
+
+Then designate ONE PRIMARY AUTHOR from among them. The primary is the author whose habits the drafter will follow most closely. The other 1-2 are secondary references whose habits the drafter may draw on for specific scenes or beats the primary's range doesn't cover.
+
+STEP 3 — CHARACTERIZE THE PRIMARY AUTHOR'S CONSTRUCTION HABITS
+
+For the PRIMARY author, list construction habits across all 13 dimensions below. Each habit must be:
+- A SPECIFIC structural rule, not a vague impression. Wrong: "Author X uses varied sentence lengths." Right: "Author X opens scenes with a short declarative under 10 words, follows with two mid-length sentences, then deploys one longer sentence to set the scene's spatial frame."
+- An ABSTRACT structural principle, not a paraphrase or quotation of the author's prose. Do not reproduce the author's language. State only the construction shape.
+- DRAWN FROM YOUR TRAINING-KNOWLEDGE of the author's published work. Do not invent. If you cannot give a specific habit for a dimension because you do not know the author's work at that level of detail, write "Unknown — defer to general commercial-fiction norms" for that dimension.
+
+The 13 required dimensions:
+
+1. Sentence openings — how sentences typically begin (subject-first, fronted modifier, participial, imperative, fragment, other). Frequency of each opener type.
+
+2. Clause structure — simple vs. compound vs. complex; typical subordination depth; where subordinate clauses sit in relation to the main clause.
+
+3. Sentence length deployment — when short sentences appear, when long sentences appear, what the mid-length default looks like, whether length varies within paragraphs or is held flat.
+
+4. Interior vs. exterior handling — how close-third or first-person interiority is rendered relative to exterior action; whether thought is embedded in action sentences or held in separate sentences; POV distance from the character's experience.
+
+5. Paragraph length norms — by beat type (action, dialogue, interior, transition). Whether paragraph length varies or is held consistent.
+
+6. Dialogue rhythm — clipped vs. expansive; how much narration surrounds each exchange; whether speaker tags appear inside or outside dialogue; end-stopped vs. overlapping turns.
+
+7. Fragment use — frequency, position within a scene, syntactic form of the fragment (noun phrase, verb phrase, prepositional phrase, single word).
+
+8. Comma deployment and rhythmic shape — two-beat clauses vs. three-beat; serial comma habits; whether commas create pause or acceleration; how often paired commas (appositive, parenthetical) appear.
+
+9. Modifier placement — pre-nominal vs. post-nominal adjectives; stacked modifiers vs. single modifiers; adverb placement.
+
+10. Verb register — Latinate vs. Germanic; active vs. passive balance; whether action verbs or stative verbs dominate in exterior beats.
+
+11. Sensory detail placement — where in a sentence sensory detail appears; how it is introduced (as main clause, as subordinate clause, as fragment, as appositive).
+
+12. Transition handling — how the author moves between beats (explicit transition language, white space, sentence-level bridge, abrupt cut).
+
+13. End-stopped vs. run-on architecture — the ratio across a full scene; whether the author uses periodic sentences and under what conditions.
+
+If the PRIMARY author has a strongly marked construction habit not captured by these 13 dimensions, add it as a 14th, 15th, etc. dimension and characterize it the same way.
+
+STEP 4 — NOTE SECONDARY-AUTHOR DRAWS
+
+For the 1-2 SECONDARY authors, do not produce a full 13-dimension list. Instead, for each, name in one or two sentences the specific scenes or beat types in this chapter where the drafter should draw on that secondary's habits instead of the primary's. Example: "If the chapter has horror or supernatural beats, draw on Shirley Jackson for those passages — short, end-stopped sentences with abstract subjects; restraint in physical description."
+
+OUTPUT FORMAT
+
+Emit the structured block below, exactly. Do not add any preamble, summary, or commentary before, after, or inside it.
+
+=== AUTHOR_CONSTRUCTION ===
+
+CHAPTER PROFILE:
+Genre/subgenre: [your read]
+Period: [your read]
+Tone: [your read]
+Pacing: [your read]
+Subject matter: [your read]
+POV and tense: [your read]
+
+SELECTED AUTHORS:
+1. [Author Name] — [one sentence on fit]
+2. [Author Name] — [one sentence on fit]
+3. [Author Name] — [one sentence on fit, omit line if only 2 authors selected]
+
+PRIMARY AUTHOR: [name from above]
+
+PRIMARY AUTHOR CONSTRUCTION HABITS:
+
+1. Sentence openings: [characterization]
+2. Clause structure: [characterization]
+3. Sentence length deployment: [characterization]
+4. Interior vs. exterior handling: [characterization]
+5. Paragraph length norms: [characterization]
+6. Dialogue rhythm: [characterization]
+7. Fragment use: [characterization]
+8. Comma deployment and rhythmic shape: [characterization]
+9. Modifier placement: [characterization]
+10. Verb register: [characterization]
+11. Sensory detail placement: [characterization]
+12. Transition handling: [characterization]
+13. End-stopped vs. run-on architecture: [characterization]
+[14, 15, ... if applicable]
+
+SECONDARY-AUTHOR DRAWS:
+- [Secondary Author Name]: [when/where the drafter should draw on this author]
+- [Secondary Author Name]: [when/where the drafter should draw on this author, omit line if only one secondary]
+
+=== END AUTHOR_CONSTRUCTION ===
