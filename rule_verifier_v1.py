@@ -1,6 +1,6 @@
 """rule_verifier_v1.py
 
-Rule-compliance verifier for step 6 of the simpleapp_v37 pipeline.
+Rule-compliance verifier for step 6 of the simpleapp_v40 pipeline.
 
 Lineage. Pattern detectors lifted from simpleapp_v36_32.py (scan_draft and
 its helpers) and extended with new detectors for the caps the simpleapp

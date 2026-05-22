@@ -1,5 +1,5 @@
 # author_construction_prompt_v1.txt
-# Step 2-3 prompt for the new pipeline (simpleapp_v37).
+# Step 2-3 prompt for the new pipeline (simpleapp_v40).
 # Reads the chapter outline; selects 2-3 bestselling commercial fiction
 # authors whose published work matches the chapter on genre, subgenre,
 # period, tone, pacing, and subject matter; characterizes their sentence-

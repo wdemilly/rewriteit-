@@ -1,5 +1,5 @@
 # draft_chapter_prompt_v1.txt
-# Step 5 prompt for the new pipeline (simpleapp_v37).
+# Step 5 prompt for the new pipeline (simpleapp_v40).
 # Called X times per batch (default X=3). Each call produces one draft of
 # the chapter from the same outline + same AUTHOR_CONSTRUCTION block.
 # Variation comes from sampling.
@@ -9,7 +9,7 @@
 # Caps 6, 7, 12, 15, 20. The 15 pattern-prohibition caps are NOT in
 # this prompt; they are enforced at step 6 by the rule_verifier module.
 #
-# Input variables (filled by simpleapp_v37):
+# Input variables (filled by simpleapp_v40):
 #   {outline}              — the chapter outline as provided by the operator
 #   {author_construction}  — the AUTHOR_CONSTRUCTION block from step 2-3
 

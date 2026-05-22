@@ -1,5 +1,5 @@
 # quality_evaluator_v2.py
-# Adapted from quality_evaluator_v1.py for use in simpleapp_v37.
+# Adapted from quality_evaluator_v1.py for use in simpleapp_v40.
 #
 # v2 changes from v1:
 #   1. WORD COUNTS line in EVALUATOR_PROMPT step 1 — dropped the
@@ -7,7 +7,7 @@
 #      word-count targets at every layer. The evaluator now notes word
 #      counts only as a fact, with no target comparison.
 #   2. GRAFT CANDIDATES — removed METHOD step 6 and the corresponding
-#      OUTPUT FORMAT paragraph. There is no graft stage in simpleapp_v37.
+#      OUTPUT FORMAT paragraph. There is no graft stage in simpleapp_v40.
 #      The evaluator returns winner and ranking only.
 #   3. Scanner fields — added new field names to match rule_verifier_v1's
 #      scan_for_evaluator() output: polysyndetic_count, tautological_count,
