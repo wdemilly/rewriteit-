@@ -11,9 +11,20 @@ written to a per-run directory the moment it generates, and a
 manifest.json is updated incrementally at every state transition, so a
 crash leaves the work recoverable on disk.
 
+EXTERNAL TERMINATION (added 2026-05-22): Streamlit may tear down the
+Python process without raising a catchable exception — for example,
+when the websocket times out after a browser disconnect, or when the
+OS sends SIGTERM. Without intervention, a manifest written before the
+kill would stay at status="running" forever, indistinguishable from a
+genuinely in-progress run. RunState.create() now registers an atexit
+hook that marks status="terminated" if status is still "running" at
+process exit. The 2026-05-22T19-24Z grimaldi run is the canonical
+example of this failure mode (status stayed "running" though the
+pipeline had reached outer-batch-3 Step-7).
+
 Directory layout per run:
 
-  runs/<timestamp>_<short_id>/
+  runs/<dirname>/
     manifest.json                       # incremental state (overwritten atomically)
     outline.txt                         # input outline
     author_construction.txt             # step 2-3 output (when written)
@@ -23,33 +34,18 @@ Directory layout per run:
     winner/
       <draft_run_id>.txt                # winning chapter (only if we got one)
       summary.txt                       # plain-text report
+    diagnoses/
+      outer_<N>.json                    # failure_diagnostic_v1 output (per outer batch)
     crash.txt                           # traceback (only if the pipeline crashed)
-
-Public API:
-
-  RunState.create(outline_text, config, model, app_dir=None) -> RunState
-    Creates the run directory and initial manifest. Writes outline.txt.
-
-  state.write_author_construction(text, usage)
-  state.write_draft(draft_dict)                  # text + tokens + run_id
-  state.write_verify_result(run_id, verify_result)
-  state.write_scores(run_id, quality_verdict, quality_reason, quality_score,
-                     ai_estimate, ai_estimate_details=None)
-  state.record_inner_batch(outer_attempt, inner_attempt, n_generated, n_survivors,
-                           n_rejected, draft_run_ids)
-  state.write_winner(draft_dict)
-  state.write_crash(exc_type, exc_message, traceback_text)
-  state.mark_status(status: "running" | "complete" | "crashed" | "no_winner")
-  state.finalize()                               # marks completed_at, status
-  RunState.list_recent_runs(app_dir=None, n=10) -> list[dict]   # for UI
-  RunState.load(run_dir: Path) -> RunState       # rehydrate from disk
 """
 from __future__ import annotations
+import atexit
 import json
 import os
 import shutil
 import traceback as tb_mod
 import uuid
+import weakref
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -57,6 +53,30 @@ from typing import Optional
 
 
 RUNS_SUBDIR = "runs"
+
+
+# Track every RunState created in the process so an atexit hook can mark
+# any still-"running" state as "terminated". Weak refs so finished runs
+# can be GC'd normally.
+_LIVE_STATES: "weakref.WeakSet[RunState]" = weakref.WeakSet()
+
+
+def _mark_terminated_on_exit() -> None:
+    """atexit hook: any RunState still in 'running' status when the
+    process exits gets marked 'terminated' so future inspections can
+    tell the difference between an in-progress run and a killed one."""
+    for state in list(_LIVE_STATES):
+        try:
+            if state.manifest.get("status") == "running":
+                state.manifest["status"] = "terminated"
+                state.manifest["completed_at"] = _now_iso()
+                state._save_manifest()
+        except Exception:
+            # atexit must never raise
+            pass
+
+
+atexit.register(_mark_terminated_on_exit)
 
 
 def _now_iso() -> str:
@@ -74,7 +94,7 @@ def _atomic_write_json(path: Path, obj) -> None:
     _atomic_write_text(path, json.dumps(obj, indent=2, ensure_ascii=False, default=str))
 
 
-@dataclass
+@dataclass(eq=False)
 class RunState:
     run_dir: Path
     manifest: dict = field(default_factory=dict)
@@ -141,6 +161,7 @@ class RunState:
         state = cls(run_dir=run_dir, manifest=manifest)
         _atomic_write_text(run_dir / "outline.txt", outline_text)
         state._save_manifest()
+        _LIVE_STATES.add(state)
         return state
 
     @classmethod

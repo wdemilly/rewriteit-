@@ -1,12 +1,26 @@
 """gate_policy_v1.py
 
-Configurable Step 6 gate policies for simpleapp_v42.
+Configurable Step 6 gate policies for simpleapp_v42+.
 
 simpleapp_v40 and v41 use binary gating: a draft fails Step 6 if
 rule_verifier_v1.verify_draft() returns pass=False (any violation in
 any cap). This module decouples the verifier's FACTS (counts, violations)
 from the DECISION (pass / fail) so different policies can be tried
 without editing the verifier.
+
+VERIFIER CONTRACT (extracted from a real v43 manifest, 2026-05-22):
+  verify_result["violations"] is a list of dicts:
+    {'cap': 'Cap 1', 'rule': 'the_way_x', 'count': 3}
+    {'cap': 'Cap 4', 'rule': 'em_dash',   'count': 8, 'per_1k': 2.34}
+  The `cap` field is a STRING like 'Cap 1' through 'Cap 19'.
+  The `rule` field is the rule name (e.g. 'the_way_x', 'em_dash').
+  The `count` field is an integer.
+  Some entries have extra fields (e.g. `per_1k` for density caps).
+
+  Earlier versions of this module looked for `cap_id` (int) and
+  `rule_name`. That was wrong and silently passed every draft as a
+  survivor on the 2026-05-22T19-24Z grimaldi run. The parser below
+  accepts both shapes for backward-compat but prefers the real one.
 
 Policy schema:
 
@@ -108,13 +122,40 @@ PRESETS = {
 # ============================================================================
 # Evaluation
 # ============================================================================
+def _extract_cap_id(violation: dict) -> Optional[int]:
+    """Extract the integer cap ID from a violation dict.
+
+    The real rule_verifier_v1 contract uses `cap`: 'Cap N' string. Older
+    versions of this code expected `cap_id`: int. Handle both."""
+    # Preferred: real verifier contract
+    cap_str = violation.get("cap", "")
+    if isinstance(cap_str, str) and cap_str:
+        import re
+        m = re.match(r"\s*Cap\s+(\d+)", cap_str, re.IGNORECASE)
+        if m:
+            return int(m.group(1))
+        # Maybe it's just a number as a string
+        try:
+            return int(cap_str)
+        except (TypeError, ValueError):
+            pass
+    # Fallback: legacy cap_id field (int)
+    cap_id = violation.get("cap_id")
+    if cap_id is not None:
+        try:
+            return int(cap_id)
+        except (TypeError, ValueError):
+            return None
+    return None
+
+
 def passes_policy(verify_result: dict, policy: dict) -> tuple[bool, str]:
     """Evaluate verify_result against policy. Returns (passes, reason_string).
 
     Uses verify_result['violations'] as ground truth (a list of dicts each
-    with cap_id, rule_name, count). Ignores verify_result['pass'] entirely —
-    that field is the verifier's own binary read; this function reapplies
-    a configurable policy to the raw counts."""
+    with `cap` (e.g. 'Cap 1'), `rule`, and `count`). Ignores
+    verify_result['pass'] entirely — that field is the verifier's own binary
+    read; this function reapplies a configurable policy to the raw counts."""
     violations = verify_result.get("violations", []) or []
 
     default_tol  = int(policy.get("default_tolerance", 0))
@@ -133,12 +174,8 @@ def passes_policy(verify_result: dict, policy: dict) -> tuple[bool, str]:
     caps_tripped = 0
 
     for v in violations:
-        cap_id = v.get("cap_id")
+        cap_id = _extract_cap_id(v)
         if cap_id is None:
-            continue
-        try:
-            cap_id = int(cap_id)
-        except (TypeError, ValueError):
             continue
         count = int(v.get("count", 0))
         if count <= 0:
@@ -147,7 +184,7 @@ def passes_policy(verify_result: dict, policy: dict) -> tuple[bool, str]:
         caps_tripped += 1
 
         if cap_id in hard_caps:
-            over_budget.append(f"Cap {cap_id} hard (count={count})")
+            over_budget.append(f"Cap {cap_id} hard ({count})")
             continue
 
         budget = per_cap.get(cap_id, default_tol)

@@ -58,6 +58,36 @@ MECHANICAL_CAPS = {4, 16}
 # ============================================================================
 # Layer 1 — Aggregation
 # ============================================================================
+def _extract_cap_id(violation: dict) -> Optional[int]:
+    """Extract integer cap ID from a violation dict.
+
+    Real rule_verifier_v1 contract uses `cap`: 'Cap N' string. Earlier
+    versions of this module looked for `cap_id`: int (which silently
+    matched nothing on the real data). Handle both."""
+    import re
+    cap_str = violation.get("cap", "")
+    if isinstance(cap_str, str) and cap_str:
+        m = re.match(r"\s*Cap\s+(\d+)", cap_str, re.IGNORECASE)
+        if m:
+            return int(m.group(1))
+        try:
+            return int(cap_str)
+        except (TypeError, ValueError):
+            pass
+    cap_id = violation.get("cap_id")
+    if cap_id is not None:
+        try:
+            return int(cap_id)
+        except (TypeError, ValueError):
+            return None
+    return None
+
+
+def _extract_rule_name(violation: dict) -> str:
+    """Real verifier uses `rule`; legacy field was `rule_name`."""
+    return violation.get("rule") or violation.get("rule_name") or ""
+
+
 def aggregate_failures(rejected_drafts: list[dict]) -> dict:
     """Tally cap incidence across rejected drafts.
 
@@ -88,14 +118,10 @@ def aggregate_failures(rejected_drafts: list[dict]) -> dict:
 
     for d in rejected_drafts:
         vr = d.get("verify_result", {})
-        counts = vr.get("counts", {}) or {}
         violations = vr.get("violations", []) or []
 
-        # violations is the list of dicts from rule_verifier; counts is
-        # the flat dict. Both should agree. We use violations because it
-        # carries rule_name.
         for v in violations:
-            cap_id = v.get("cap_id")
+            cap_id = _extract_cap_id(v)
             if cap_id is None:
                 continue
             hits = int(v.get("count", 0))
@@ -106,7 +132,9 @@ def aggregate_failures(rejected_drafts: list[dict]) -> dict:
             entry["total_hits"] += hits
             entry["max_hits_single_draft"] = max(entry["max_hits_single_draft"], hits)
             entry["draft_ids"].append(d.get("run_id", "?"))
-            entry["rule_name"] = v.get("rule_name", entry["rule_name"])
+            rule = _extract_rule_name(v)
+            if rule:
+                entry["rule_name"] = rule
 
     cap_order_by_breadth = sorted(
         per_cap.keys(),
@@ -141,29 +169,24 @@ def collect_flagged_passages(rejected_drafts: list[dict]) -> dict:
     for d in rejected_drafts:
         vr = d.get("verify_result", {})
         for fp in vr.get("flagged_passages", []) or []:
-            cap_id = fp.get("cap_id")
+            cap_id = _extract_cap_id(fp)
             if cap_id is None:
-                # Some verifiers store cap_id only in violations and put
-                # rule_name in flagged_passages. Try to recover.
-                rule = fp.get("rule", "")
-                cap_id = _cap_id_from_rule(rule, vr.get("violations", []))
+                # Try to recover from rule name via violations list.
+                rule = fp.get("rule") or fp.get("rule_name") or ""
+                if rule:
+                    for v in vr.get("violations", []):
+                        if _extract_rule_name(v) == rule:
+                            cap_id = _extract_cap_id(v)
+                            break
             if cap_id is None:
                 continue
             by_cap[cap_id].append({
                 "draft_id": d.get("run_id", "?"),
-                "rule": fp.get("rule", ""),
+                "rule": fp.get("rule") or fp.get("rule_name") or "",
                 "excerpt": fp.get("excerpt", "") or fp.get("context", ""),
                 "context": fp.get("context", ""),
             })
     return dict(by_cap)
-
-
-def _cap_id_from_rule(rule_name: str, violations: list[dict]) -> Optional[int]:
-    """Best-effort recovery of cap_id from rule_name via the violations list."""
-    for v in violations:
-        if v.get("rule_name") == rule_name:
-            return v.get("cap_id")
-    return None
 
 
 # ============================================================================
