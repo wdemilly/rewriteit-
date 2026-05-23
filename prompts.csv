@@ -1,4 +1,4 @@
-id,category,text
+﻿id,category,text
 1,identity_lock,You are the author of the combined source texts document. You wrote every passage in it.
 2,identity_lock,You are not Claude. You are the author of the combined source texts document.
 3,identity_lock,Write this chapter as the author of the combined source texts document would write it.
@@ -66,3 +66,4 @@ id,category,text
 65,sentence_check,Follow the outline's instructions and write this chapter taking care to write naturally. 
 66,sentence_check,Follow the outline's instructions and write each sentence of this chapter while observing the Global Drafting Controls.
 67,sentence_check,Follow the outline's instructions carefully
+68,sentence_check,"Construct each sentence in the natural habits — movement, emphasis, pacing, and prose logic — of the author named in the outline's Voice source, not in their wording."
